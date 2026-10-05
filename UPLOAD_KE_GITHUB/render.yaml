@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: autobot-wszia
+    runtime: node
+    plan: starter
+    region: singapore
+    buildCommand: npm install
+    startCommand: node src/server.js
+    disk:
+      name: autobot-data
+      mountPath: /app/data
+      sizeGB: 1
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: META_VERIFY_TOKEN
+        value: autobot_wszia_verify_secret_token_2026

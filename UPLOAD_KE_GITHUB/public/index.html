@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoBot WSZia - Production AI Sales System</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Login Overlay jika belum disahkan -->
+  <div id="loginModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <div class="modal-header text-center">
+        <div class="brand-icon mx-auto mb-2">🤖</div>
+        <h2>Log Masuk AutoBot WSZia</h2>
+        <p class="text-muted">Papan Pemuka Pengurusan Sistem Pengeluaran 24/7</p>
+      </div>
+      <form id="loginForm" class="mt-4">
+        <div class="form-group mb-3">
+          <label for="loginUsername">Nama Pengguna</label>
+          <input type="text" id="loginUsername" class="form-control" value="admin" required autofocus>
+        </div>
+        <div class="form-group mb-4">
+          <label for="loginPassword">Kata Laluan</label>
+          <input type="password" id="loginPassword" class="form-control" value="admin123" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="btnLoginSubmit">
+          Log Masuk Selamat
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-layout">
+    <!-- Sidebar Navigasi -->
+    <aside class="sidebar">
+      <div class="brand-section">
+        <div class="brand-logo">🤖</div>
+        <div>
+          <h2 class="brand-title">AutoBot WSZia</h2>
+          <span class="badge badge-prod">PROD 24/7 CLOUD</span>
+        </div>
+      </div>
+
+      <nav class="nav-list">
+        <button class="nav-btn active" data-tab="tab-overview">
+          <span class="nav-icon">📊</span> Ringkasan & Analitik
+        </button>
+        <button class="nav-btn" data-tab="tab-flow-builder">
+          <span class="nav-icon">🔄</span> Closing Flow Builder
+        </button>
+        <button class="nav-btn" data-tab="tab-simulator">
+          <span class="nav-icon">🧪</span> Simulator Ujian AI
+        </button>
+        <button class="nav-btn" data-tab="tab-scripts">
+          <span class="nav-icon">✍️</span> Skrip Penutup (Closing)
+        </button>
+        <button class="nav-btn" data-tab="tab-orders">
+          <span class="nav-icon">🛍️</span> Pengurusan Pesanan
+        </button>
+        <button class="nav-btn" data-tab="tab-inbox">
+          <span class="nav-icon">💬</span> Kotak Masuk & Handover
+        </button>
+        <button class="nav-btn" data-tab="tab-products">
+          <span class="nav-icon">📦</span> Katalog & Pakej
+        </button>
+        <button class="nav-btn" data-tab="tab-settings">
+          <span class="nav-icon">⚙️</span> WhatsApp & Tetapan
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="status-indicator">
+          <span class="dot pulse-green"></span>
+          <div>
+            <div class="status-label">Pelayan Pengeluaran</div>
+            <div class="status-sub">24/7 Berdikari (Awan)</div>
+          </div>
+        </div>
+        <button class="btn btn-outline-danger btn-sm mt-3 w-100" id="btnLogout">
+          Log Keluar
+        </button>
+      </div>
+    </aside>
+
+    <!-- Kawasan Kandungan Utama -->
+    <main class="main-body">
+      <!-- Header Atas -->
+      <header class="app-header">
+        <div>
+          <h1 id="headerTitle">Ringkasan & Analitik Prestasi</h1>
+          <p id="headerSubtitle" class="text-muted">Pantau interaksi jualan, niat pelanggan, dan kadar penukaran pesanan.</p>
+        </div>
+        <div class="header-right">
+          <div id="liveWebhookBadge" class="badge badge-success">🌐 Cloud 24/7 Active</div>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW & ANALYTICS -->
+      <section id="tab-overview" class="view-panel active">
+        <div class="metric-grid">
+          <div class="metric-card">
+            <div class="metric-title">Jumlah Perbualan</div>
+            <div class="metric-value" id="statConversations">0</div>
+            <div class="metric-sub">Pelanggan berinteraksi dengan AI</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Pesanan Sah (Confirmed)</div>
+            <div class="metric-value text-success" id="statOrders">0</div>
+            <div class="metric-sub">Berjaya ditutup oleh Closing Flow</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Jumlah Jualan (RM)</div>
+            <div class="metric-value text-primary" id="statRevenue">RM0.00</div>
+            <div class="metric-sub">Nilai transaksi pesanan terkumpul</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-title">Kadar Penukaran (CR)</div>
+            <div class="metric-value text-warning" id="statConversion">0%</div>
+            <div class="metric-sub">Peratusan penutup jualan berjaya</div>
+          </div>
+        </div>
+
+        <div class="grid-2col mt-4">
+          <div class="card">
+            <div class="card-head">
+              <h3>Taburan Niat Pelanggan (Intent Breakdown)</h3>
+              <span class="text-muted">16+ Niat Dikesan AI</span>
+            </div>
+            <div id="intentTableContainer" class="table-responsive mt-3">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Niat Pelanggan (Customer Intent)</th>
+                    <th>Jumlah Interaksi</th>
+                    <th>Peratusan</th>
+                  </tr>
+                </thead>
+                <tbody id="intentTableBody">
+                  <tr><td colspan="3" class="text-center text-muted">Memuatkan data niat...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Corong Penutup Jualan (Closing Funnel)</h3>
+              <span class="text-muted">Kemajuan Langkah Flow</span>
+            </div>
+            <div class="funnel-container mt-3" id="funnelContainer">
+              <div class="funnel-step">
+                <span>1. Greeting & Sambutan</span>
+                <div class="progress-bar"><div class="fill" style="width: 100%"></div></div>
+                <strong>100%</strong>
+              </div>
+              <div class="funnel-step">
+                <span>2. Kenalpasti Masalah</span>
+                <div class="progress-bar"><div class="fill" style="width: 82%"></div></div>
+                <strong>82%</strong>
+              </div>
+              <div class="funnel-step">
+                <span>3. Penerangan & Pakej</span>
+                <div class="progress-bar"><div class="fill" style="width: 64%"></div></div>
+                <strong>64%</strong>
+              </div>
+              <div class="funnel-step">
+                <span>4. Closing & Butiran Pesanan</span>
+                <div class="progress-bar"><div class="fill" style="width: 48%"></div></div>
+                <strong>48%</strong>
+              </div>
+              <div class="funnel-step">
+                <span>5. Pesanan Disahkan</span>
+                <div class="progress-bar"><div class="fill bg-success" style="width: 32%"></div></div>
+                <strong>32%</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: CLOSING FLOW BUILDER -->
+      <section id="tab-flow-builder" class="view-panel">
+        <div class="flow-toolbar">
+          <div class="flow-selector-group">
+            <label for="flowVersionSelect">Versi Flow:</label>
+            <select id="flowVersionSelect" class="form-control d-inline-block w-auto">
+              <!-- Dynamically populated -->
+            </select>
+            <span id="flowStatusBadge" class="badge badge-published">Live (Published)</span>
+          </div>
+          <div class="flow-action-group">
+            <button class="btn btn-outline-secondary" id="btnDuplicateFlow">📋 Duplikasi Flow</button>
+            <button class="btn btn-outline-primary" id="btnAddNewStep">➕ Tambah Langkah</button>
+            <button class="btn btn-secondary" id="btnSaveFlowDraft">💾 Simpan Draf</button>
+            <button class="btn btn-success" id="btnPublishFlow">🚀 Terbitkan (Publish Live)</button>
+          </div>
+        </div>
+
+        <div class="flow-builder-container mt-4">
+          <div class="flow-steps-pipeline" id="flowStepsPipeline">
+            <!-- Dynamic Flow Cards rendered here -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: SIMULATOR UJIAN AI -->
+      <section id="tab-simulator" class="view-panel">
+        <div class="grid-2col">
+          <div class="card chat-simulator-card">
+            <div class="card-head">
+              <h3>Simulasi Perbualan WhatsApp</h3>
+              <button class="btn btn-sm btn-outline-secondary" id="btnResetSimulator">🔄 Set Semula Sembang</button>
+            </div>
+            <div class="chat-messages-box" id="simulatorMessagesBox">
+              <div class="chat-bubble ai">
+                <div class="bubble-sender">AutoBot WSZia (AI)</div>
+                <div class="bubble-text">Waalaikumussalam dan salam sejahtera! 👋 Terima kasih kerana menghubungi kami. Boleh saya tahu dengan siapa saya berhubung?</div>
+                <div class="bubble-meta">Step: step_greeting | Intent: new_customer</div>
+              </div>
+            </div>
+            <form id="simulatorForm" class="chat-input-bar">
+              <input type="text" id="simulatorInput" class="form-control" placeholder="Taip mesej seolah-olah anda pelanggan..." required autocomplete="off">
+              <button type="submit" class="btn btn-primary">Hantar</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Senario Ujian Pantas (Test Scenarios)</h3>
+              <span class="text-muted">Klik untuk uji respon AI</span>
+            </div>
+            <div class="scenario-buttons-grid mt-3">
+              <button class="scenario-btn" data-msg="Hai nama saya Ahmad, perut saya selalu kembung banyak angin">
+                <strong>Simptom Kesihatan</strong>
+                <span>"Hai nama saya Ahmad, perut kembung banyak angin"</span>
+              </button>
+              <button class="scenario-btn" data-msg="Berapa harga untuk 2 botol? Ada promosi tak?">
+                <strong>Tanya Harga & Pakej</strong>
+                <span>"Berapa harga untuk 2 botol? Ada promosi tak?"</span>
+              </button>
+              <button class="scenario-btn" data-msg="Mahal sangat lah produk ni, bajet saya tak cukup">
+                <strong>Bantahan: Harga Mahal</strong>
+                <span>"Mahal sangat lah produk ni, bajet tak cukup"</span>
+              </button>
+              <button class="scenario-btn" data-msg="Baik saya nak beli pakej 2 botol tu. Ni alamat saya: No 12 Jalan Murni, Shah Alam, Selangor">
+                <strong>Niat Beli & Alamat</strong>
+                <span>"Saya nak beli 2 botol. Alamat: No 12 Jalan Murni..."</span>
+              </button>
+              <button class="scenario-btn" data-msg="Ya betul semua maklumat tu, confirm order">
+                <strong>Pengesahan Pesanan (Confirm)</strong>
+                <span>"Ya betul semua maklumat tu, confirm order"</span>
+              </button>
+              <button class="scenario-btn" data-msg="Saya nak bercakap dengan staf manusia atau admin">
+                <strong>Minta Staf Manusia (Handover)</strong>
+                <span>"Saya nak bercakap dengan staf manusia..."</span>
+              </button>
+            </div>
+
+            <div class="inspector-box mt-4">
+              <h4>Inspektor Memori & Status AI</h4>
+              <pre id="simulatorInspectorJson">Pilih senario atau taip mesej untuk melihat status memori pelanggan.</pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: CLOSING SCRIPTS -->
+      <section id="tab-scripts" class="view-panel">
+        <div class="card mb-4">
+          <div class="card-head">
+            <div>
+              <h3>Pengurusan Skrip Penutup Jualan (Closing Scripts)</h3>
+              <p class="text-muted">Cipta variasi teknik penutup jualan (Soft Close, Direct Close, Choice Close) untuk disesuaikan secara dinamik.</p>
+            </div>
+            <button class="btn btn-primary" id="btnCreateScriptModal">➕ Tambah Skrip Baharu</button>
+          </div>
+          <div class="variables-guide mt-3">
+            <strong>Pembolehubah Dinamik Disokong:</strong>
+            <code>{{customer_name}}</code>
+            <code>{{product_name}}</code>
+            <code>{{package_name}}</code>
+            <code>{{package_price}}</code>
+            <code>{{quantity}}</code>
+            <code>{{customer_problem}}</code>
+          </div>
+        </div>
+
+        <div class="scripts-grid" id="closingScriptsGrid">
+          <!-- Dynamic Script Cards -->
+        </div>
+      </section>
+
+      <!-- TAB 5: ORDERS -->
+      <section id="tab-orders" class="view-panel">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>Senarai Tempahan Pelanggan</h3>
+              <p class="text-muted">Pesanan yang ditutup dan disahkan oleh AI mengikut Closing Flow.</p>
+            </div>
+            <button class="btn btn-outline-secondary" id="btnRefreshOrders">🔄 Muat Semula</button>
+          </div>
+          <div class="table-responsive mt-3">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nama & Telefon</th>
+                  <th>Pakej Dipilih</th>
+                  <th>Kuantiti</th>
+                  <th>Jumlah (RM)</th>
+                  <th>Alamat Pos</th>
+                  <th>Status</th>
+                  <th>Tindakan</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <!-- Dynamic Orders -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: INBOX & HUMAN HANDOVER -->
+      <section id="tab-inbox" class="view-panel">
+        <div class="inbox-layout">
+          <div class="inbox-conversations-list" id="inboxList">
+            <!-- Dynamic conversations -->
+          </div>
+          <div class="inbox-chat-area card">
+            <div class="inbox-chat-header" id="inboxChatHeader">
+              <div>
+                <h4 id="inboxActiveName">Pilih Perbualan</h4>
+                <span id="inboxActivePhone" class="text-muted">-</span>
+              </div>
+              <div id="inboxHandoverAction"></div>
+            </div>
+            <div class="inbox-messages-body" id="inboxMessagesBody">
+              <p class="text-center text-muted my-auto">Sila klik perbualan di sebelah kiri untuk melihat mesej.</p>
+            </div>
+            <form id="inboxReplyForm" class="inbox-composer">
+              <input type="text" id="inboxReplyInput" class="form-control" placeholder="Tulis mesej manual kepada pelanggan..." disabled required>
+              <button type="submit" class="btn btn-primary" id="btnInboxSend" disabled>Hantar</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: PRODUCTS & PACKAGES -->
+      <section id="tab-products" class="view-panel">
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-head">
+              <h3>Maklumat Produk Utama</h3>
+            </div>
+            <form id="productForm" class="mt-3">
+              <div class="form-group mb-3">
+                <label>Nama Produk</label>
+                <input type="text" id="inputProductName" class="form-control" required>
+              </div>
+              <div class="form-group mb-3">
+                <label>Penerangan & Manfaat</label>
+                <textarea id="inputProductDesc" class="form-control" rows="3" required></textarea>
+              </div>
+              <div class="form-group mb-3">
+                <label>Harga Asas (RM)</label>
+                <input type="number" id="inputProductPrice" class="form-control" step="0.01" required>
+              </div>
+              <button type="submit" class="btn btn-primary">Simpan Maklumat Produk</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Pakej Jualan</h3>
+              <button class="btn btn-sm btn-outline-primary" id="btnModalAddPackage">➕ Tambah Pakej</button>
+            </div>
+            <div class="packages-list mt-3" id="packagesList">
+              <!-- Dynamic packages -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: SETTINGS & WHATSAPP CONFIG -->
+      <section id="tab-settings" class="view-panel">
+        <div class="grid-2col">
+          <div class="card">
+            <div class="card-head">
+              <h3>Konfigurasi Meta WhatsApp Cloud API (24/7 Kekal)</h3>
+            </div>
+            <form id="metaSettingsForm" class="mt-3">
+              <div class="form-group mb-3">
+                <label>Webhook URL (Daftar di Meta for Developers):</label>
+                <input type="text" id="cfgWebhookUrl" class="form-control bg-light" readonly>
+                <small class="text-muted">Masukkan URL ini di Meta WhatsApp > Configuration > Callback URL.</small>
+              </div>
+              <div class="form-group mb-3">
+                <label>Meta Verify Token:</label>
+                <input type="text" id="cfgVerifyToken" class="form-control" required>
+              </div>
+              <div class="form-group mb-3">
+                <label>Meta Permanent Access Token:</label>
+                <input type="password" id="cfgAccessToken" class="form-control" placeholder="EAABw...">
+              </div>
+              <div class="form-group mb-3">
+                <label>WhatsApp Phone Number ID:</label>
+                <input type="text" id="cfgPhoneNumberId" class="form-control" placeholder="1029384756...">
+              </div>
+              <button type="submit" class="btn btn-primary">Simpan Konfigurasi Meta</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Cloud Baileys (Pilihan Imbas QR Tanpa Kos)</h3>
+            </div>
+            <div class="baileys-status-box text-center p-4">
+              <div id="baileysQrWrapper" class="mb-3">
+                <div class="spinner mb-2"></div>
+                <p>Memuatkan status sesi Baileys...</p>
+              </div>
+              <div id="baileysAccountInfo" class="badge badge-success hidden">Tersambung</div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="card-head">
+              <h3>Konfigurasi AI (Gemini / OpenAI)</h3>
+            </div>
+            <form id="aiSettingsForm" class="mt-3">
+              <div class="form-group mb-3">
+                <label>Google Gemini API Key:</label>
+                <input type="password" id="cfgGeminiKey" class="form-control" placeholder="AIzaSy...">
+                <small class="text-muted">Jika dikosongkan, sistem menggunakan enjin pemprosesan niat pintar tempatan secara automatik.</small>
+              </div>
+              <div class="form-group mb-3">
+                <label>Garis Panduan Sistem (System Prompt):</label>
+                <textarea id="cfgSystemPrompt" class="form-control" rows="3"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Simpan Tetapan AI</button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast-notify">Mesej Disimpan</div>
+
+  <script src="app.js"></script>
+</body>
+</html>
